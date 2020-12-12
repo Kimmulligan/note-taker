@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const fs = require("fs");
+const PORT = process.env.PORT || 3000;
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -9,28 +10,30 @@ app.use(express.urlencoded({ extended: true }));
 const db = require("./db/db.json");
 var uniqid = require("uniqid");
 
-
 app.delete("/api/notes/:id", function (req, res) {
   const chosen = req.params.id;
 
-fs.readFile('db/db.json', function(error, data){
-  if(error)throw error;
-  let newArray =  JSON.parse(data);
+  fs.readFile("db/db.json", function (error, data) {
+    if (error) throw error;
+    let newArray = JSON.parse(data);
 
-  function searchArray(chosen, newArray){
-    for(var i=0; i< newArray.length; i++){
-      if(newArray[i].id === chosen){
-        newArray.splice(i,1);
+    function searchArray(chosen, newArray) {
+      for (var i = 0; i < newArray.length; i++) {
+        if (newArray[i].id === chosen) {
+          newArray.splice(i, 1);
+        }
       }
     }
-  }
-  searchArray(chosen, newArray);
-    fs.writeFile('db/db.json', JSON.stringify(newArray, null, 2), function (err) {
-      console.log(err);
-      res.json({message: 'deleted successfully'});
-    });
-  
-})
+    searchArray(chosen, newArray);
+    fs.writeFile(
+      "db/db.json",
+      JSON.stringify(newArray, null, 2),
+      function (err) {
+        console.log(err);
+        res.json({ message: "deleted successfully" });
+      }
+    );
+  });
 
   // const newArray = db.filter(function (note) {
   //   if (note.id !== selectedId) {
@@ -48,14 +51,13 @@ fs.readFile('db/db.json', function(error, data){
 });
 //HTML Routes
 app.get("/notes", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/notes.html"));
+  res.sendFile(path.join(__dirname, "./public/notes.html"));
 });
 
 app.get("/api/notes", function (req, res) {
-
-  fs.readFile('db/db.json', function(error, data){
-    if(error)throw error;
-    let newArray =  JSON.parse(data);
+  fs.readFile("db/db.json", function (error, data) {
+    if (error) throw error;
+    let newArray = JSON.parse(data);
     return res.json(newArray);
   });
 });
@@ -71,8 +73,8 @@ app.post("/api/notes", function (req, res) {
     res.json(newNote);
   });
 });
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/index.html"));
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
 });
 
-app.listen(process.env.PORT|| 3000);
+app.listen(PORT);
